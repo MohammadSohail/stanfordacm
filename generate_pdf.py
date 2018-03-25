@@ -1,7 +1,6 @@
 #!/usr/bin/python
-import subprocess
-code_dir = "code"
-title = "Stanford ACM-ICPC Team Notebook"
+#import subprocess
+code_dir = "myCode"
 
 def get_sections():
     sections = []
@@ -22,7 +21,7 @@ def get_sections():
                     raise ValueError('Subsection parse error: %s' % line)
                 filename = tmp[0]
                 subsection_name = tmp[1]
-                if section_name is None:
+                if subsection_name is None:
                     raise ValueError('Subsection given without section')
                 subsections.append((filename, subsection_name))
     return sections
@@ -60,5 +59,5 @@ if __name__ == "__main__":
     tex = get_tex(sections)
     with open('contents.tex', 'w') as f:
         f.write(tex)
-    latexmk_options = ["latexmk", "-pdf", "notebook.tex"]
-    subprocess.call(latexmk_options)
+    #latexmk_options = ["latexmk", "-pdf", "notebook.tex"]
+    #subprocess.call(latexmk_options)
