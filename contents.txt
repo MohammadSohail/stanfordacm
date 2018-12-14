@@ -3,36 +3,5 @@
 # Subsections within a section should follow the format:
 #   [filename within code directory][tab character \t][subsection title]
 
-[Data Structures and Libraries]
-UnionFind.cpp	Union Find Disjoint Set
-SegmentTree.cpp	Segment Tree
-FenwickTree.cpp	Fenwick Tree
-BitManipulation.cpp	Bit Manipulation
-
-[Mathematics]
-PrimeNumbers.cpp	Prime Numbers
-GaussianElimination.cpp	Gaussian Elimination
-linearDiophantine.cpp	Linear Diophantine Equation
-
-[String Algorithms]
-KMP.cpp	KMP
-SuffixArray.cpp	Suffix Array
-StringAlign.cpp	String Alignment
-
-[Computational Geometry]
-Points_Lines.cpp	Points and Lines
-Circles.cpp	Circles
-Triangles.cpp	Triangles
-Polygon.cpp	Polygons
-
-[DP]
-LIS.cpp	Longest Increasing Subsequence
-Max1DRangeSum.cpp	Max 1D Range Sum
-
-[Graphs]
-bfs.cpp	BFS
-dfs.cpp	DFS
-dijkstra.cpp	Dijkstra's
-
 [Shortcuts]
 template.cpp	Template CPP
