@@ -5,3 +5,27 @@
 
 [Shortcuts]
 template.cpp	Template CPP
+
+[Data Structures]
+segTree.cpp	Segment Tree
+fenwickTree.cpp	Fenwick Tree
+unionFind.cpp	Union Find
+
+[Bit Manipulation]
+bitManip.cpp	Bit Manipulation
+
+[Graph Algorithms]
+dijkstra_and_bellmanFord.cpp	Shortest Path
+warshall.cpp	Warshall
+matching.cpp	Matching
+maxflow.cpp	Max Flow
+
+
+[Number Theory]
+numberTheory.cpp	Number Theory
+
+[String Matching]
+kmp.cpp	KMP
+
+[LCA]
+LCA.cpp	LCA

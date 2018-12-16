@@ -1,87 +1,53 @@
-#include<bits/stdc++.h>
-using namespace std;
-#define fl(i,a,n) for(int i=a;i<(n);++i)
-#define rfl(i,a,n) for(int i=(n-1);i>a-1;i--)
-#define rep(i,n) for(int i=1;i<=n;i++)
-#define rrep(i,n) for(int i=n;i>0;i--)
-#define srt(a,n) sort(a+1,a+n+1)
-#define li long
-#define ll long long
-#define ull unsigned long long
-#define clr(a) memset(a,0,sizeof(a))
-#define vi vector <int>
-#define vll vector <long long>
-#define pii pair <int,int>
-#define mod 1000000007
-#define pb push_back
-#define fr first
-#define sc second
-#define loop(i,n) for(int i=0;i<n;i++)
-#define pi 3.1415926535
-string s;
-struct Segment
-{
-	int a=0,b=0,c=0;
-} tree[4000002];
+class SegmentTree { // the OOP Segment Tree implementation, like Heap array
+private: vi st, A;            // recall that vi is: typedef vector<int> vi;
+  int n;
+  int left (int p) { return  p<<1; }      // same as binary heap operations
+  int right(int p) { return (p<<1) + 1; }
 
-void build_tree(int start,int end,int i)
-{
-	if(start==end)
-	{
-		if(s[start]=='(')
-		{
-			tree[i].b = 1;
-		}
-		else
-		{
-			tree[i].c = 1;
-		}
-		return;
-	}
-	int mid = (start+end)>>1;
-	build_tree(start,mid,2*i+1);
-	build_tree(mid+1,end,2*i+2);
-	int t = min(tree[2*i+1].b,tree[2*i+2].c);
-	tree[i].a = tree[2*i+1].a + tree[2*i+2].a + t;
-	tree[i].b = tree[2*i+1].b + tree[2*i+2].b - t;
-	tree[i].c = tree[2*i+1].c + tree[2*i+2].c - t;
-}
-Segment query(int l,int r,int start,int end,int i)
-{
-	if(start>=l && end<=r) return tree[i];
-	int mid = (start+end)>>1;
-	if(mid>=r) return query(l,r,start,mid,2*i+1);
-	else if(mid<l) return query(l,r,mid+1,end,2*i+2);
-	else
-	{
-		Segment q1 = query(l,r,start,mid,2*i+1),q2 = query(l,r,mid+1,end,2*i+2);
-		Segment ans;
-		int t = min(q1.b,q2.c);
-		ans.a = q1.a + q2.a + t;
-		ans.b = q1.b + q2.b - t;
-		ans.c = q1.c + q2.c - t;
-		return ans;
-	}
-}
-int main()
-{
-	#ifndef ONLINE_JUDGE
-	freopen("input.txt","r",stdin);
-	freopen("output.txt","w",stdout);
-	#endif
-	ios_base::sync_with_stdio(false);
-	cin.tie(NULL);
-	cout.tie(NULL);
-	cin>>s;
-	int n = s.length();
-	build_tree(0,n-1,0);
-	int m;
-	cin>>m;
-	rep(i,m)
-	{
-		int l,r;
-		cin>>l>>r;
-		cout<<2*query(l-1,r-1,0,n-1,0).a<<endl;
-	}
-	return 0;
-}
+  void build(int p, int L, int R) {                           // O(n log n)
+    if (L == R)                            // as L == R, either one is fine
+      st[p] = L;                                         // store the index
+    else {                                // recursively compute the values
+      build(left(p) , L          , (L+R)/2);
+      build(right(p), (L+R)/2 + 1, R      );
+      int p1 = st[left(p)], p2 = st[right(p)];
+      st[p] = (A[p1] <= A[p2]) ? p1 : p2;
+  } }
+
+  int rmq(int p, int L, int R, int i, int j) {                  // O(log n)
+    if (i >  R || j <  L) return -1; // current segment outside query range
+    if (L >= i && R <= j) return st[p];               // inside query range
+     // compute the min position in the left and right part of the interval
+    int p1 = rmq(left(p) , L        , (L+R)/2, i, j);
+    int p2 = rmq(right(p), (L+R)/2+1, R      , i, j);
+    if (p1 == -1) return p2;   // if we try to access segment outside query
+    if (p2 == -1) return p1;                               // same as above
+    return (A[p1] <= A[p2]) ? p1 : p2; }          // as as in build routine
+
+  int update(int p, int L, int R, int idx, int new_value) {
+    int i = idx, j = idx;                   // for point update i = j = idx
+         // if the current interval does not intersect the update interval, 
+    if (i > R || j < L) return st[p];         // return this st node value!
+    // if the current interval is included in the update range,
+    if (L == i && R == j) {
+      A[i] = new_value;                      // update the underlying array
+      return st[p] = L;                                       // this index
+    }
+     // compute the minimum position in the left/right part of the interval
+    int p1, p2;
+    p1 = update(left(p) , L        , (L+R)/2, idx, new_value);
+    p2 = update(right(p), (L+R)/2+1, R      , idx, new_value);
+    // return the position where the overall minimum is
+    return st[p] = (A[p1] <= A[p2]) ? p1 : p2;
+  }
+
+public:
+  SegmentTree(const vi &_A) {
+    A = _A; n = (int)A.size();              // copy content for local usage
+    st.assign(4*n, 0);              // create large enough vector of zeroes
+    build(1, 0, n-1);                                    // recursive build
+  }
+  int rmq(int i, int j) { return rmq(1, 0, n-1, i, j); }     // overloading
+  int update(int i, int v) {                                // point update
+    return update(1, 0, n-1, i, v); }
+};
