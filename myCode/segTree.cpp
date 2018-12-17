@@ -1,53 +1,142 @@
-class SegmentTree { // the OOP Segment Tree implementation, like Heap array
-private: vi st, A;            // recall that vi is: typedef vector<int> vi;
-  int n;
-  int left (int p) { return  p<<1; }      // same as binary heap operations
-  int right(int p) { return (p<<1) + 1; }
-
-  void build(int p, int L, int R) {                           // O(n log n)
-    if (L == R)                            // as L == R, either one is fine
-      st[p] = L;                                         // store the index
-    else {                                // recursively compute the values
-      build(left(p) , L          , (L+R)/2);
-      build(right(p), (L+R)/2 + 1, R      );
-      int p1 = st[left(p)], p2 = st[right(p)];
-      st[p] = (A[p1] <= A[p2]) ? p1 : p2;
-  } }
-
-  int rmq(int p, int L, int R, int i, int j) {                  // O(log n)
-    if (i >  R || j <  L) return -1; // current segment outside query range
-    if (L >= i && R <= j) return st[p];               // inside query range
-     // compute the min position in the left and right part of the interval
-    int p1 = rmq(left(p) , L        , (L+R)/2, i, j);
-    int p2 = rmq(right(p), (L+R)/2+1, R      , i, j);
-    if (p1 == -1) return p2;   // if we try to access segment outside query
-    if (p2 == -1) return p1;                               // same as above
-    return (A[p1] <= A[p2]) ? p1 : p2; }          // as as in build routine
-
-  int update(int p, int L, int R, int idx, int new_value) {
-    int i = idx, j = idx;                   // for point update i = j = idx
-         // if the current interval does not intersect the update interval, 
-    if (i > R || j < L) return st[p];         // return this st node value!
-    // if the current interval is included in the update range,
-    if (L == i && R == j) {
-      A[i] = new_value;                      // update the underlying array
-      return st[p] = L;                                       // this index
+void build(int node, int start, int end)
+{
+    if(start == end)
+    {
+        // Leaf node will have a single element
+        tree[node] = A[start];
     }
-     // compute the minimum position in the left/right part of the interval
-    int p1, p2;
-    p1 = update(left(p) , L        , (L+R)/2, idx, new_value);
-    p2 = update(right(p), (L+R)/2+1, R      , idx, new_value);
-    // return the position where the overall minimum is
-    return st[p] = (A[p1] <= A[p2]) ? p1 : p2;
-  }
+    else
+    {
+        int mid = (start + end) / 2;
+        // Recurse on the left child
+        build(2*node, start, mid);
+        // Recurse on the right child
+        build(2*node+1, mid+1, end);
+        // Internal node will have the sum of both of its children
+        tree[node] = tree[2*node] + tree[2*node+1];
+    }
+}
 
-public:
-  SegmentTree(const vi &_A) {
-    A = _A; n = (int)A.size();              // copy content for local usage
-    st.assign(4*n, 0);              // create large enough vector of zeroes
-    build(1, 0, n-1);                                    // recursive build
-  }
-  int rmq(int i, int j) { return rmq(1, 0, n-1, i, j); }     // overloading
-  int update(int i, int v) {                                // point update
-    return update(1, 0, n-1, i, v); }
-};
+void update(int node, int start, int end, int idx, int val)
+{
+    if(start == end)
+    {
+        // Leaf node
+        A[idx] += val;
+        tree[node] += val;
+    }
+    else
+    {
+        int mid = (start + end) / 2;
+        if(start <= idx and idx <= mid)
+        {
+            // If idx is in the left child, recurse on the left child
+            update(2*node, start, mid, idx, val);
+        }
+        else
+        {
+            // if idx is in the right child, recurse on the right child
+            update(2*node+1, mid+1, end, idx, val);
+        }
+        // Internal node will have the sum of both of its children
+        tree[node] = tree[2*node] + tree[2*node+1];
+    }
+}
+
+int query(int node, int start, int end, int l, int r)
+{
+    if(r < start or end < l)
+    {
+        // range represented by a node is completely outside the given range
+        return 0;
+    }
+    if(l <= start and end <= r)
+    {
+        // range represented by a node is completely inside the given range
+        return tree[node];
+    }
+    // range represented by a node is partially inside and partially outside the given range
+    int mid = (start + end) / 2;
+    int p1 = query(2*node, start, mid, l, r);
+    int p2 = query(2*node+1, mid+1, end, l, r);
+    return (p1 + p2);
+}
+
+void updateRange(int node, int start, int end, int l, int r, int val)
+{
+    // out of range
+    if (start > end or start > r or end < l)
+        return;
+
+    // Current node is a leaf node
+    if (start == end)
+    {
+        // Add the difference to current node
+        tree[node] += val;
+        return;
+    }
+
+    // If not a leaf node, recur for children.
+    int mid = (start + end) / 2;
+    updateRange(node*2, start, mid, l, r, val);
+    updateRange(node*2 + 1, mid + 1, end, l, r, val);
+
+    // Use the result of children calls to update this node
+    tree[node] = tree[node*2] + tree[node*2+1];
+}
+
+void updateRange(int node, int start, int end, int l, int r, int val)
+{
+    if(lazy[node] != 0)
+    { 
+        // This node needs to be updated
+        tree[node] += (end - start + 1) * lazy[node];    // Update it
+        if(start != end)
+        {
+            lazy[node*2] += lazy[node];                  // Mark child as lazy
+            lazy[node*2+1] += lazy[node];                // Mark child as lazy
+        }
+        lazy[node] = 0;                                  // Reset it
+    }
+    if(start > end or start > r or end < l)              // Current segment is not within range [l, r]
+        return;
+    if(start >= l and end <= r)
+    {
+        // Segment is fully within range
+        tree[node] += (end - start + 1) * val;
+        if(start != end)
+        {
+            // Not leaf node
+            lazy[node*2] += val;
+            lazy[node*2+1] += val;
+        }
+        return;
+    }
+    int mid = (start + end) / 2;
+    updateRange(node*2, start, mid, l, r, val);        // Updating left child
+    updateRange(node*2 + 1, mid + 1, end, l, r, val);   // Updating right child
+    tree[node] = tree[node*2] + tree[node*2+1];        // Updating root with max value 
+}
+
+int queryRange(int node, int start, int end, int l, int r)
+{
+    if(start > end or start > r or end < l)
+        return 0;         // Out of range
+    if(lazy[node] != 0)
+    {
+        // This node needs to be updated
+        tree[node] += (end - start + 1) * lazy[node];            // Update it
+        if(start != end)
+        {
+            lazy[node*2] += lazy[node];         // Mark child as lazy
+            lazy[node*2+1] += lazy[node];    // Mark child as lazy
+        }
+        lazy[node] = 0;                 // Reset it
+    }
+    if(start >= l and end <= r)             // Current segment is totally within range [l, r]
+        return tree[node];
+    int mid = (start + end) / 2;
+    int p1 = queryRange(node*2, start, mid, l, r);         // Query left child
+    int p2 = queryRange(node*2 + 1, mid + 1, end, l, r); // Query right child
+    return (p1 + p2);
+}

@@ -19,13 +19,19 @@ dijkstra_and_bellmanFord.cpp	Shortest Path
 warshall.cpp	Warshall
 matching.cpp	Matching
 maxflow.cpp	Max Flow
-
+SCC.cpp	Strongly Connected Components
 
 [Number Theory]
 numberTheory.cpp	Number Theory
+extendedEuclidean.cpp	Extended Euclidean Function
+modularInverse.cpp	Modular Inverse
+nCrModP.cpp	nCr Modulo P
 
 [String Matching]
 kmp.cpp	KMP
+z_algo.cpp	Z-Algorithm
+trie.cpp	Trie
 
-[LCA]
+[LCA and LCS]
 LCA.cpp	LCA
+LCS.cpp	LCS
