@@ -32,6 +32,12 @@ kmp.cpp	KMP
 z_algo.cpp	Z-Algorithm
 trie.cpp	Trie
 
-[LCA and LCS]
+[LCA and LIS]
 LCA.cpp	LCA
-LCS.cpp	LCS
+LIS.cpp	LIS
+
+[Computational Geometry]
+points_lines.cpp	Points and Lines
+circles.cpp	Circles
+triangles.cpp	Triangles
+polygon.cpp	Polygon
